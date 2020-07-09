@@ -1,5 +1,7 @@
 #ifdef N64VIDEO_C
 
+#include <endian.h>
+
 //
 // rdram.c: RDRAM memory interface
 //
@@ -77,23 +79,23 @@ static STRICTINLINE uint8_t rdram_read_idx8_fast(uint32_t in)
 static STRICTINLINE uint16_t rdram_read_idx16(uint32_t in)
 {
     in &= RDRAM_MASK >> 1;
-    return rdram_valid_idx16(in) ? rdram16[in ^ WORD_ADDR_XOR] : 0;
+    return rdram_valid_idx16(in) ? be16toh(rdram16[in ^ WORD_ADDR_XOR]) : 0;
 }
 
 static STRICTINLINE uint16_t rdram_read_idx16_fast(uint32_t in)
 {
-    return rdram16[in ^ WORD_ADDR_XOR];
+    return be16toh(rdram16[in ^ WORD_ADDR_XOR]);
 }
 
 static STRICTINLINE uint32_t rdram_read_idx32(uint32_t in)
 {
     in &= RDRAM_MASK >> 2;
-    return rdram_valid_idx32(in) ? rdram32[in] : 0;
+    return rdram_valid_idx32(in) ? be32toh(rdram32[in]) : 0;
 }
 
 static STRICTINLINE uint32_t rdram_read_idx32_fast(uint32_t in)
 {
-    return rdram32[in];
+    return be32toh(rdram32[in]);
 }
 
 static STRICTINLINE void rdram_write_idx8(uint32_t in, uint8_t val)
@@ -108,7 +110,7 @@ static STRICTINLINE void rdram_write_idx16(uint32_t in, uint16_t val)
 {
     in &= RDRAM_MASK >> 1;
     if (rdram_valid_idx16(in)) {
-        rdram16[in ^ WORD_ADDR_XOR] = val;
+        rdram16[in ^ WORD_ADDR_XOR] = htobe16(val);
     }
 }
 
@@ -116,7 +118,7 @@ static STRICTINLINE void rdram_write_idx32(uint32_t in, uint32_t val)
 {
     in &= RDRAM_MASK >> 2;
     if (rdram_valid_idx32(in)) {
-        rdram32[in] = val;
+        rdram32[in] = htobe32(val);
     }
 }
 
@@ -124,7 +126,7 @@ static STRICTINLINE void rdram_read_pair16(uint16_t* rdst, uint8_t* hdst, uint32
 {
     in &= RDRAM_MASK >> 1;
     if (rdram_valid_idx16(in)) {
-        *rdst = rdram16[in ^ WORD_ADDR_XOR];
+        *rdst = be16toh(rdram16[in ^ WORD_ADDR_XOR]);
         *hdst = rdram_hidden[in];
         if (*hdst & HB_CLEAN) {
             *hdst = (*rdst & 1) ? 3 : 0;
@@ -149,7 +151,7 @@ static STRICTINLINE void rdram_write_pair16(uint32_t in, uint16_t rval, uint8_t 
 {
     in &= RDRAM_MASK >> 1;
     if (rdram_valid_idx16(in)) {
-        rdram16[in ^ WORD_ADDR_XOR] = rval;
+        rdram16[in ^ WORD_ADDR_XOR] = htobe16(rval);
         rdram_hidden[in] = hval;
     }
 }
@@ -158,7 +160,7 @@ static STRICTINLINE void rdram_write_pair32(uint32_t in, uint32_t rval, uint8_t 
 {
     in &= RDRAM_MASK >> 2;
     if (rdram_valid_idx32(in)) {
-        rdram32[in] = rval;
+        rdram32[in] = htobe32(rval);
         rdram_hidden[in << 1] = hval0;
         rdram_hidden[(in << 1) + 1] = hval1;
     }

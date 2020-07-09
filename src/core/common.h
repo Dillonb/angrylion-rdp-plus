@@ -1,7 +1,6 @@
 #pragma once
 
 // endianness
-#define LSB_FIRST 1 
 #ifdef LSB_FIRST
     #define BYTE_ADDR_XOR       3
     #define WORD_ADDR_XOR       1
