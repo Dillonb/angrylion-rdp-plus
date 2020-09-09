@@ -251,7 +251,7 @@ void n64video_process_list(void)
         // when reading the first int, extract the command ID and update the buffer length
         if (rdp_cmd_pos == 0) {
             if (xbus_dma) {
-                cmd_buf[rdp_cmd_pos++] = dmem[dp_current_al++ & 0x3ff];
+                cmd_buf[rdp_cmd_pos++] = be32toh(dmem[dp_current_al++ & 0x3ff]);
             } else {
                 cmd_buf[rdp_cmd_pos++] = rdram_read_idx32(dp_current_al++);
             }
@@ -265,7 +265,7 @@ void n64video_process_list(void)
 
         if (xbus_dma) {
             for (i = 0; i < toload; i++) {
-                cmd_buf[rdp_cmd_pos++] = dmem[dp_current_al++ & 0x3ff];
+                cmd_buf[rdp_cmd_pos++] = be32toh(dmem[dp_current_al++ & 0x3ff]);
             }
         } else {
             for (i = 0; i < toload; i++) {
